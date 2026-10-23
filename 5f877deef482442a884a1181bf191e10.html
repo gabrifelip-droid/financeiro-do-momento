@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financeiro Do Momento - Controle Financeiro Pessoal</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23c9923c'/%3E%3Cstop offset='100%25' style='stop-color:%234d8b7a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='30' fill='url(%23g)'/%3E%3Ccircle cx='32' cy='32' r='22' fill='none' stroke='%231c1f2e' stroke-width='2' opacity='0.3'/%3E%3Cpath d='M32 18 L32 46 M26 24 L38 24 M26 40 L38 40 M29 20 L29 24 M35 20 L35 24 M29 40 L29 44 M35 40 L35 44' stroke='%231c1f2e' stroke-width='3' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='32' cy='32' r='3' fill='%231c1f2e'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.js"></script>
+<style>
+:root {
+  --bg: #1c1f2e;
+  --card: #262a3a;
+  --text: #e8ecf4;
+  --muted: #8b9ab8;
+  --accent: #c9923c;
+  --accent-soft: rgba(201,146,60,.14);
+  --accent2: #4d8b7a;
+  --accent2-soft: rgba(77,139,122,.14);
+  --border: rgba(139,154,184,.16);
+  --error: #ef4444;
+  --success: #6bb8a5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Source Sans 3', sans-serif;
+  background: radial-gradient(1200px 600px at 80% -10%, rgba(201,146,60,.08), transparent 60%), var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp .6s ease forwards;
+}
+.reveal:nth-child(2) { animation-delay: .1s; }
+.reveal:nth-child(3) { animation-delay: .2s; }
+.reveal:nth-child(4) { animation-delay: .3s; }
+.reveal:nth-child(5) { animation-delay: .4s; }
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* ========== TEMA CLARO ========== */
+body.tema-claro {
+  --bg: #f5f7fa;
+  --card: #ffffff;
+  --text: #1a1d29;
+  --muted: #64748b;
+  --border: rgba(0,0,0,.08);
+  --accent-soft: rgba(201,146,60,.1);
+}
+body.tema-claro .grafico-container,
+body.tema-claro .form-container,
+body.tema-claro .tabela-container {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,.08);
+}
+body.tema-claro input, body.tema-claro select {
+  background: #f8fafc;
+  color: #1a1d29;
+  border-color: rgba(0,0,0,.12);
+}
+body.tema-claro .metric-card {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,.08);
+}
+body.tema-claro .filter-btn {
+  background: #f1f5f9;
+  color: #475569;
+}
+body.tema-claro .filter-btn.active {
+  background: linear-gradient(135deg,var(--accent),var(--accent2));
+  color: #fff;
+}
+body.tema-claro .btn-secundario {
+  background: #f1f5f9;
+  color: #475569;
+}
+body.tema-claro .btn-theme-toggle {
+  background: #f1f5f9;
+  color: #1a1d29;
+}
+body.tema-claro .orcamento-item,
+body.tema-claro .meta-item {
+  background: #f8fafc;
+  border-color: rgba(0,0,0,.08);
+}
+
+/* ========== BOTÃO DE TEMA ========== */
+.btn-theme-toggle {
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+.btn-theme-toggle:hover {
+  background: rgba(255,255,255,.1);
+  transform: scale(1.05);
+}
+
+/* ========== ORÇAMENTO E METAS ========== */
+.orcamento-container, .metas-container {
+  margin-top: 24px;
+}
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title .icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg,var(--accent),var(--accent2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+.orcamento-form, .meta-form {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+.orcamento-item, .meta-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.orcamento-header, .meta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.orcamento-nome, .meta-nome {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 15px;
+}
+.orcamento-valores, .meta-valores {
+  font-size: 13px;
+  color: var(--muted);
+}
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background: rgba(139,154,184,.15);
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width .5s ease;
+}
+.progress-fill.ok { background: linear-gradient(90deg,var(--accent2),#6bb8a5); }
+.progress-fill.warn { background: linear-gradient(90deg,#eab308,#f59e0b); }
+.progress-fill.danger { background: linear-gradient(90deg,#ef4444,#dc2626); }
+.excluir-btn {
+  background: rgba(239,68,68,.1);
+  color: #ef4444;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all .2s;
+}
+.excluir-btn:hover { background: rgba(239,68,68,.2); }
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: var(--muted);
+  font-size: 14px;
+}
+@media (max-width: 768px) {
+  .orcamento-form, .meta-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========== TELA DE LOGIN ========== */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.auth-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+}
+
+.auth-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  color: var(--bg);
+  box-shadow: 0 6px 20px rgba(201,146,60,.3);
+}
+
+.auth-title {
+  font-family: 'Spectral', serif;
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+
+.auth-subtitle {
+  text-align: center;
+  color: var(--muted);
+  margin: 0 0 28px;
+  font-size: 14px;
+}
+
+.auth-tabs {
+  display: flex;
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  transition: all .2s;
+  border: none;
+  background: transparent;
+  font-family: 'Source Sans 3', sans-serif;
+}
+
+.auth-tab.active {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Source Sans 3', sans-serif;
+  outline: none;
+  transition: border-color .2s;
+}
+
+.form-input:focus {
+  border-color: var(--accent);
+}
+
+.form-input::placeholder {
+  color: var(--muted);
+}
+
+.form-error {
+  background: rgba(239, 68, 68, .1);
+  border: 1px solid rgba(239, 68, 68, .3);
+  color: #f87171;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: none;
+}
+
+.form-error.show {
+  display: block;
+}
+
+.btn-auth {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .2s;
+  font-family: 'Source Sans 3', sans-serif;
+  margin-top: 8px;
+}
+
+.btn-auth:hover {
+  opacity: .9;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.auth-footer span {
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.auth-footer span:hover {
+  text-decoration: underline;
+}
+
+/* ========== CABEÇALHO USUÁRIO ========== */
+.user-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--bg);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.user-email {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all .2s;
+  font-family: 'Source Sans 3', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-logout:hover {
+  border-color: var(--error);
+  color: var(--error);
+  background: rgba(239, 68, 68, .08);
+}
+
+/* ========== RESTO DO SISTEMA ========== */
+.metric-card {
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,.12);
+}
+
+.tbl-row {
+  transition: background .15s ease;
+}
+.tbl-row:hover {
+  background: rgba(139,154,184,.08);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .2s;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 14px;
+}
+.btn-primary:hover {
+  opacity: .9;
+}
+
+.btn-secondary {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color .2s;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 14px;
+}
+.btn-secondary:hover {
+  border-color: var(--accent);
+}
+
+.input-field {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 10px;
+  width: 100%;
+  outline: none;
+  transition: border-color .2s;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 14px;
+}
+.input-field:focus {
+  border-color: var(--accent);
+}
+.input-field::placeholder {
+  color: var(--muted);
+}
+
+select.input-field option {
+  background: var(--card);
+  color: var(--text);
+}
+
+.type-radio {
+  display: none;
+}
+.type-radio + label {
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  transition: all .2s;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  flex: 1;
+}
+.type-radio:checked + label.receita {
+  background: rgba(77,139,122,.2);
+  border-color: var(--accent2);
+  color: #6bb8a5;
+}
+.type-radio:checked + label.despesa {
+  background: rgba(201,146,60,.2);
+  border-color: var(--accent);
+  color: #e0b06a;
+}
+
+.status-pill {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+.status-receita {
+  background: rgba(77,139,122,.2);
+  color: #6bb8a5;
+}
+.status-despesa {
+  background: rgba(201,146,60,.2);
+  color: #e0b06a;
+}
+
+.delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all .2s;
+}
+.delete-btn:hover {
+  background: rgba(220,38,38,.15);
+  color: #ef4444;
+}
+
+.filter-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  transition: all .2s;
+  font-family: 'Source Sans 3', sans-serif;
+}
+.filter-btn.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+h1, h2, h3 {
+  font-family: 'Spectral', serif;
+}
+</style>
+</head>
+<body>
+
+<!-- ========== TELA DE AUTENTICAÇÃO ========== -->
+<div id="authScreen" class="auth-container">
+  <div class="auth-card reveal">
+    <div class="auth-logo">
+      <svg width="36" height="36" viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="22" fill="#1c1f2e" opacity="0.25"/>
+        <path d="M32 18 L32 46 M26 24 L38 24 M26 40 L38 40 M29 20 L29 24 M35 20 L35 24 M29 40 L29 44 M35 40 L35 44" stroke="#1c1f2e" stroke-width="3.5" stroke-linecap="round"/>
+        <circle cx="32" cy="32" r="3.5" fill="#1c1f2e"/>
+      </svg>
+    </div>
+    <h1 class="auth-title">Financeiro Do Momento</h1>
+    <p class="auth-subtitle">Acesse sua conta para gerenciar suas finanças no dia a dia</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login">Entrar</button>
+      <button class="auth-tab" data-tab="cadastro">Cadastrar</button>
+    </div>
+
+    <!-- Formulário de Login -->
+    <form id="loginForm">
+      <div id="loginError" class="form-error"></div>
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input type="email" id="loginEmail" class="form-input" placeholder="seu@email.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <input type="password" id="loginSenha" class="form-input" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn-auth">Entrar</button>
+    </form>
+
+    <!-- Formulário de Cadastro -->
+    <form id="cadastroForm" class="hidden">
+      <div id="cadastroError" class="form-error"></div>
+      <div class="form-group">
+        <label class="form-label">Nome completo</label>
+        <input type="text" id="cadastroNome" class="form-input" placeholder="Seu nome" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input type="email" id="cadastroEmail" class="form-input" placeholder="seu@email.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha (mínimo 6 caracteres)</label>
+        <input type="password" id="cadastroSenha" class="form-input" placeholder="••••••••" minlength="6" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmar senha</label>
+        <input type="password" id="cadastroSenha2" class="form-input" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn-auth">Criar conta</button>
+    </form>
+
+    <p class="auth-footer" id="authFooter">
+      Não tem conta? <span onclick="mudarTab('cadastro')">Cadastre-se</span>
+    </p>
+  </div>
+</div>
+
+<!-- ========== SISTEMA PRINCIPAL ========== -->
+<div id="sistemaScreen" class="hidden">
+  <div class="max-w-6xl mx-auto px-6 py-8">
+
+    <!-- Cabeçalho com Usuário -->
+    <div class="user-header">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div class="user-details">
+          <span class="user-name" id="userName">Usuário</span>
+          <span class="user-email" id="userEmail">usuario@email.com</span>
+        </div>
+      </div>
+      <button class="btn-theme-toggle" onclick="alternarTema()" title="Alternar tema">
+            <span id="themeIcon">☀️</span>
+          </button>
+          <button class="btn-logout" onclick="logout()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Sair
+      </button>
+    </div>
+
+    <!-- Cabeçalho do Sistema -->
+    <div class="reveal mb-10">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 15px rgba(201,146,60,.25);">
+          <svg width="26" height="26" viewBox="0 0 64 64" fill="none">
+            <path d="M32 18 L32 46 M26 24 L38 24 M26 40 L38 40 M29 20 L29 24 M35 20 L35 24 M29 40 L29 44 M35 40 L35 44" stroke="#1c1f2e" stroke-width="3.5" stroke-linecap="round"/>
+            <circle cx="32" cy="32" r="3.5" fill="#1c1f2e"/>
+          </svg>
+        </div>
+        <div>
+          <p style="font-family:monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted)">Dashboard</p>
+          <h1 class="text-4xl font-bold" style="color:var(--text);letter-spacing:-0.02em;line-height:1.15;margin:0;">
+            Financeiro<span style="background:linear-gradient(100deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent"> Do Momento</span>
+          </h1>
+        </div>
+      </div>
+      <p style="color:var(--muted);max-width:600px;font-size:16px;margin-top:12px;line-height:1.6;">
+        Controle suas finanças no momento presente, planeje seu futuro. Gerencie receitas, despesas e visualize seus gastos de forma simples e eficiente.
+      </p>
+    </div>
+
+    <!-- Cards de Métricas -->
+    <div class="reveal flex flex-wrap gap-4 mb-10">
+      <div class="metric-card backdrop-blur rounded-2xl p-5" style="flex:1 1 200px;background:var(--card);border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.1);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div style="width:32px;height:32px;border-radius:8px;background:rgba(139,154,184,.12);display:flex;align-items:center;justify-content:center;color:var(--muted);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="5" width="20" height="14" rx="2"/>
+              <line x1="2" y1="10" x2="22" y2="10"/>
+            </svg>
+          </div>
+          <div style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;font-weight:500;">Saldo Total</div>
+        </div>
+        <div id="saldoTotal" style="color:var(--text);font-size:32px;font-weight:700;font-variant-numeric:tabular-nums;">R$ 0,00</div>
+      </div>
+      <div class="metric-card backdrop-blur rounded-2xl p-5" style="flex:1 1 200px;background:var(--card);border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.1);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--accent2-soft);display:flex;align-items:center;justify-content:center;color:var(--accent2);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 6l-9.5 9.5-5-5L1 18"/>
+              <path d="M17 6h6v6"/>
+            </svg>
+          </div>
+          <div style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;font-weight:500;">Receitas</div>
+        </div>
+        <div id="totalReceitas" style="color:#6bb8a5;font-size:32px;font-weight:700;font-variant-numeric:tabular-nums;">R$ 0,00</div>
+      </div>
+      <div class="metric-card backdrop-blur rounded-2xl p-5" style="flex:1 1 200px;background:var(--card);border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.1);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;color:var(--accent);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 18l-9.5-9.5-5 5L1 6"/>
+              <path d="M17 18h6v-6"/>
+            </svg>
+          </div>
+          <div style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;font-weight:500;">Despesas</div>
+        </div>
+        <div id="totalDespesas" style="color:#e0b06a;font-size:32px;font-weight:700;font-variant-numeric:tabular-nums;">R$ 0,00</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Formulário de Adicionar Transação -->
+      <div class="reveal lg:col-span-1 rounded-2xl p-6" style="background:var(--card);border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.1);height:fit-content;">
+        <h2 class="text-xl font-semibold mb-5" style="color:var(--text);margin:0 0 20px 0;">Nova Transação</h2>
+        
+        <form id="formTransacao" style="display:flex;flex-direction:column;gap:16px;">
+          <div>
+            <label style="font-size:14px;font-weight:500;margin-bottom:8px;display:block;color:var(--muted);">Tipo</label>
+            <div style="display:flex;gap:8px;">
+              <input type="radio" name="tipo" id="tipoReceita" value="receita" class="type-radio" checked>
+              <label for="tipoReceita" class="receita">Receita</label>
+              <input type="radio" name="tipo" id="tipoDespesa" value="despesa" class="type-radio">
+              <label for="tipoDespesa" class="despesa">Despesa</label>
+            </div>
+          </div>
+          
+          <div>
+            <label style="font-size:14px;font-weight:500;margin-bottom:8px;display:block;color:var(--muted);">Descrição</label>
+            <input type="text" id="descricao" class="input-field" placeholder="Ex: Salário, Aluguel..." required>
+          </div>
+          
+          <div>
+            <label style="font-size:14px;font-weight:500;margin-bottom:8px;display:block;color:var(--muted);">Valor (R$)</label>
+            <input type="number" id="valor" class="input-field" step="0.01" min="0.01" placeholder="0,00" required>
+          </div>
+          
+          <div>
+            <label style="font-size:14px;font-weight:500;margin-bottom:8px;display:block;color:var(--muted);">Categoria</label>
+            <select id="categoria" class="input-field" required>
+              <option value="">Selecione uma categoria</option>
+              <optgroup label="Receitas">
+                <option value="Salário">Salário</option>
+                <option value="Freelance">Freelance</option>
+                <option value="Investimentos">Investimentos</option>
+                <option value="Outras Receitas">Outras Receitas</option>
+              </optgroup>
+              <optgroup label="Despesas">
+                <option value="Alimentação">Alimentação</option>
+                <option value="Transporte">Transporte</option>
+                <option value="Moradia">Moradia</option>
+                <option value="Saúde">Saúde</option>
+                <option value="Educação">Educação</option>
+                <option value="Lazer">Lazer</option>
+                <option value="Compras">Compras</option>
+                <option value="Contas">Contas</option>
+                <option value="Outras Despesas">Outras Despesas</option>
+              </optgroup>
+            </select>
+          </div>
+          
+          <div>
+            <label style="font-size:14px;font-weight:500;margin-bottom:8px;display:block;color:var(--muted);">Data</label>
+            <input type="date" id="data" class="input-field" required>
+          </div>
+          
+          <button type="submit" class="btn-primary w-full" style="margin-top:4px;">
+            Adicionar Transação
+          </button>
+        </form>
+      </div>
+
+      <!-- Gráficos -->
+      <div class="lg:col-span-2" style="display:flex;flex-direction:column;gap:24px;">
+        <div class="reveal rounded-2xl p-6" style="background:var(--card);border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.1);">
+          <h2 class="text-xl font-semibold mb-5" style="color:var(--text);margin:0 0 20px 0;">Gastos por Categoria</h2>
+          <div style="height:300px;width:100%;display:flex;align-items:center;justify-content:center;">
+            <canvas id="chartPizza"></canvas>
+          </div>
+        </div>
+        
+        <div class="reveal rounded-2xl p-6" style="background:var(--card);border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.1);">
+          <h2 class="text-xl font-semibold mb-5" style="color:var(--text);margin:0 0 20px 0;">Receitas vs Despesas (Mensal)</h2>
+          <div style="height:280px;width:100%;">
+            <canvas id="chartBarras"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- SEÇÃO DE ORÇAMENTO POR CATEGORIA -->
+    <div class="grafico-container orcamento-container reveal" style="animation-delay:.35s;">
+      <div class="section-title">
+        <span class="icon">💰</span>
+        Orçamento por Categoria
+      </div>
+      
+      <form class="orcamento-form" id="formOrcamento">
+        <div>
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;">Categoria</label>
+          <select id="orcamentoCategoria" required>
+            <option value="">Selecione uma categoria</option>
+            <optgroup label="Despesas">
+              <option value="Alimentação">Alimentação</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Moradia">Moradia</option>
+              <option value="Saúde">Saúde</option>
+              <option value="Educação">Educação</option>
+              <option value="Lazer">Lazer</option>
+              <option value="Compras">Compras</option>
+              <option value="Contas">Contas</option>
+              <option value="Outras Despesas">Outras Despesas</option>
+            </optgroup>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;">Limite Mensal (R$)</label>
+          <input type="number" id="orcamentoLimite" step="0.01" min="0" placeholder="0,00" required>
+        </div>
+        <div></div>
+        <button type="submit" class="btn-auth" style="margin:0;">Adicionar</button>
+      </form>
+      
+      <div id="listaOrcamento"></div>
+    </div>
+
+    <!-- SEÇÃO DE METAS DE ECONOMIA -->
+    <div class="grafico-container metas-container reveal" style="animation-delay:.4s;">
+      <div class="section-title">
+        <span class="icon">🎯</span>
+        Metas de Economia
+      </div>
+      
+      <form class="meta-form" id="formMeta">
+        <div>
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;">Nome da Meta</label>
+          <input type="text" id="metaNome" placeholder="Ex: Viagem de férias" required>
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;">Valor Alvo (R$)</label>
+          <input type="number" id="metaAlvo" step="0.01" min="0" placeholder="0,00" required>
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;">Valor Atual (R$)</label>
+          <input type="number" id="metaAtual" step="0.01" min="0" placeholder="0,00" value="0">
+        </div>
+        <button type="submit" class="btn-auth" style="margin:0;">Criar Meta</button>
+      </form>
+      
+      <div id="listaMetas"></div>
+    </div>
+
+
+    <!-- Lista de Transações -->
+    <div class="reveal rounded-2xl p-6 mt-6" style="background:var(--card);border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.1);">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;">
+        <h2 class="text-xl font-semibold" style="color:var(--text);margin:0;">Histórico de Transações</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+          <button class="filter-btn active" data-filter="todos">Todos</button>
+          <button class="filter-btn" data-filter="receita">Receitas</button>
+          <button class="filter-btn" data-filter="despesa">Despesas</button>
+          <button id="limparDados" class="btn-secondary" style="padding:6px 14px;font-size:13px;">Limpar Tudo</button>
+        </div>
+      </div>
+      
+      <div id="listaTransacoes" style="max-height:400px;overflow-y:auto;">
+        <table style="width:100%;font-size:14px;border-collapse:collapse;">
+          <thead style="position:sticky;top:0;background:var(--card);z-index:1;">
+            <tr style="color:var(--muted);border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;">
+              <th style="text-align:left;padding-bottom:12px;font-weight:500;">Data</th>
+              <th style="text-align:left;padding-bottom:12px;font-weight:500;">Descrição</th>
+              <th style="text-align:left;padding-bottom:12px;font-weight:500;">Categoria</th>
+              <th style="text-align:left;padding-bottom:12px;font-weight:500;">Tipo</th>
+              <th style="text-align:right;padding-bottom:12px;font-weight:500;">Valor</th>
+              <th style="text-align:right;padding-bottom:12px;font-weight:500;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaTransacoes" style="color:var(--text)">
+            <tr>
+              <td colspan="6" style="padding:32px;text-align:center;color:var(--muted);">
+                Nenhuma transação cadastrada. Adicione sua primeira transação acima!
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Rodapé -->
+    <div class="mt-12 pt-6 text-center" style="border-top:1px solid var(--border);">
+      <p style="font-size:12px;color:var(--muted);margin:0;">
+        <strong>Financeiro Do Momento</strong> · Sistema de Controle Financeiro Pessoal · TCC - Curso de Desenvolvimento de Sistemas · Dados armazenados localmente no navegador
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  // ============ CONFIGURAÇÕES ============
+  var USERS_KEY = 'cf_usuarios';
+  var SESSION_KEY = 'cf_sessao';
+  var TRANSACOES_PREFIX = 'cf_transacoes_';
+  
+  var usuarioLogado = null;
+  var transacoes = [];
+  var filtroAtual = 'todos';
+  var chartPizza = null;
+  var chartBarras = null;
+
+  // ============ AUTENTICAÇÃO ============
+  function getUsuarios() {
+    var dados = localStorage.getItem(USERS_KEY);
+    return dados ? JSON.parse(dados) : [];
+  }
+
+  function salvarUsuarios(usuarios) {
+    localStorage.setItem(USERS_KEY, JSON.stringify(usuarios));
+  }
+
+  function getSessao() {
+    var dados = localStorage.getItem(SESSION_KEY);
+    return dados ? JSON.parse(dados) : null;
+  }
+
+  function salvarSessao(usuario) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(usuario));
+  }
+
+  function limparSessao() {
+    localStorage.removeItem(SESSION_KEY);
+  }
+
+  function hashSenha(senha) {
+    // Hash simples para demonstração (em produção usar bcrypt)
+    var hash = 0;
+    for (var i = 0; i < senha.length; i++) {
+      var char = senha.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return hash.toString(36);
+  }
+
+  function login(email, senha) {
+    var usuarios = getUsuarios();
+    var usuario = usuarios.find(function(u){ return u.email.toLowerCase() === email.toLowerCase(); });
+    
+    if (!usuario) {
+      return { sucesso: false, mensagem: 'Usuário não encontrado.' };
+    }
+    
+    if (usuario.senha !== hashSenha(senha)) {
+      return { sucesso: false, mensagem: 'Senha incorreta.' };
+    }
+    
+    var dadosSessao = { id: usuario.id, nome: usuario.nome, email: usuario.email };
+    salvarSessao(dadosSessao);
+    return { sucesso: true, usuario: dadosSessao };
+  }
+
+  function cadastrar(nome, email, senha) {
+    var usuarios = getUsuarios();
+    
+    if (usuarios.find(function(u){ return u.email.toLowerCase() === email.toLowerCase(); })) {
+      return { sucesso: false, mensagem: 'Este e-mail já está cadastrado.' };
+    }
+    
+    var novoUsuario = {
+      id: Date.now(),
+      nome: nome.trim(),
+      email: email.trim().toLowerCase(),
+      senha: hashSenha(senha),
+      dataCadastro: new Date().toISOString()
+    };
+    
+    usuarios.push(novoUsuario);
+    salvarUsuarios(usuarios);
+    
+    var dadosSessao = { id: novoUsuario.id, nome: novoUsuario.nome, email: novoUsuario.email };
+    salvarSessao(dadosSessao);
+    return { sucesso: true, usuario: dadosSessao };
+  }
+
+  function logout() {
+    limparSessao();
+    usuarioLogado = null;
+    transacoes = [];
+    mostrarTelaAuth();
+  }
+  window.logout = logout;
+
+  function mostrarTelaAuth() {
+    document.getElementById('authScreen').classList.remove('hidden');
+    document.getElementById('sistemaScreen').classList.add('hidden');
+    document.getElementById('loginForm').reset();
+    document.getElementById('cadastroForm').reset();
+    document.getElementById('loginError').classList.remove('show');
+    document.getElementById('cadastroError').classList.remove('show');
+  }
+
+  function mostrarTelaSistema() {
+    document.getElementById('authScreen').classList.add('hidden');
+    document.getElementById('sistemaScreen').classList.remove('hidden');
+    
+    // Atualizar dados do usuário no cabeçalho
+    document.getElementById('userName').textContent = usuarioLogado.nome;
+    document.getElementById('userEmail').textContent = usuarioLogado.email;
+    document.getElementById('userAvatar').textContent = usuarioLogado.nome.charAt(0).toUpperCase();
+    
+    // Carregar transações do usuário
+    carregarTransacoes();
+    atualizarInterface();
+  }
+
+  function mudarTab(tab) {
+    var tabs = document.querySelectorAll('.auth-tab');
+    tabs.forEach(function(t){ t.classList.toggle('active', t.dataset.tab === tab); });
+    
+    document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+    document.getElementById('cadastroForm').classList.toggle('hidden', tab !== 'cadastro');
+    document.getElementById('loginError').classList.remove('show');
+    document.getElementById('cadastroError').classList.remove('show');
+    
+    var footer = document.getElementById('authFooter');
+    if (tab === 'login') {
+      footer.innerHTML = 'Não tem conta? <span onclick="mudarTab(\'cadastro\')">Cadastre-se</span>';
+    } else {
+      footer.innerHTML = 'Já tem conta? <span onclick="mudarTab(\'login\')">Entre aqui</span>';
+    }
+  }
+  window.mudarTab = mudarTab;
+
+  // ============ DADOS DE EXEMPLO ============
+  function criarDadosExemplo(usuarioId) {
+    var hoje = new Date().toISOString().split('T')[0];
+    var dadosExemplo = [
+      { id: 1, tipo: 'receita', descricao: 'Salário', valor: 3500, categoria: 'Salário', data: hoje },
+      { id: 2, tipo: 'despesa', descricao: 'Aluguel', valor: 1200, categoria: 'Moradia', data: hoje },
+      { id: 3, tipo: 'despesa', descricao: 'Supermercado', valor: 450, categoria: 'Alimentação', data: hoje },
+      { id: 4, tipo: 'despesa', descricao: 'Gasolina', valor: 280, categoria: 'Transporte', data: hoje },
+      { id: 5, tipo: 'receita', descricao: 'Freelance Projeto', valor: 800, categoria: 'Freelance', data: hoje },
+      { id: 6, tipo: 'despesa', descricao: 'Internet', valor: 120, categoria: 'Contas', data: hoje },
+      { id: 7, tipo: 'despesa', descricao: 'Restaurante', valor: 180, categoria: 'Lazer', data: hoje },
+      { id: 8, tipo: 'despesa', descricao: 'Farmácia', valor: 95, categoria: 'Saúde', data: hoje }
+    ];
+    localStorage.setItem(TRANSACOES_PREFIX + usuarioId, JSON.stringify(dadosExemplo));
+  }
+
+  // ============ TRANSAÇÕES ============
+  function getTransacoesKey() {
+    return TRANSACOES_PREFIX + usuarioLogado.id;
+  }
+
+  function carregarTransacoes() {
+    var dados = localStorage.getItem(getTransacoesKey());
+    transacoes = dados ? JSON.parse(dados) : [];
+  }
+
+  function salvarTransacoes() {
+    localStorage.setItem(getTransacoesKey(), JSON.stringify(transacoes));
+  }
+
+  // ============ FUNÇÕES AUXILIARES ============
+  function formatarMoeda(valor) {
+    return 'R$ ' + parseFloat(valor).toFixed(2).replace('.', ',').replace(/(\d)(?=(\d{3})+\,)/g, '$1.');
+  }
+
+  function formatarData(dataStr) {
+    var data = new Date(dataStr + 'T00:00:00');
+    return data.toLocaleDateString('pt-BR');
+  }
+
+  // Definir data de hoje como padrão
+  document.getElementById('data').valueAsDate = new Date();
+
+  // ============ CÁLCULOS ============
+  function calcularTotais() {
+    var receitas = transacoes.filter(function(t){ return t.tipo === 'receita'; }).reduce(function(soma, t){ return soma + parseFloat(t.valor); }, 0);
+    var despesas = transacoes.filter(function(t){ return t.tipo === 'despesa'; }).reduce(function(soma, t){ return soma + parseFloat(t.valor); }, 0);
+    var saldo = receitas - despesas;
+
+    document.getElementById('saldoTotal').textContent = formatarMoeda(saldo);
+    document.getElementById('totalReceitas').textContent = formatarMoeda(receitas);
+    document.getElementById('totalDespesas').textContent = formatarMoeda(despesas);
+
+    var saldoEl = document.getElementById('saldoTotal');
+    if (saldo >= 0) {
+      saldoEl.style.color = '#6bb8a5';
+    } else {
+      saldoEl.style.color = '#ef4444';
+    }
+  }
+
+  // ============ RENDERIZAÇÃO ============
+  function renderizarTabela() {
+    var tbody = document.getElementById('tabelaTransacoes');
+    var listaFiltrada = transacoes;
+    
+    if (filtroAtual !== 'todos') {
+      listaFiltrada = transacoes.filter(function(t){ return t.tipo === filtroAtual; });
+    }
+
+    listaFiltrada.sort(function(a, b){ return new Date(b.data) - new Date(a.data); });
+
+    if (listaFiltrada.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="padding:32px;text-align:center;color:var(--muted)">Nenhuma transação encontrada.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = listaFiltrada.map(function(t){
+      var valorClasse = t.tipo === 'receita' ? '#6bb8a5' : '#e0b06a';
+      var valorPrefixo = t.tipo === 'receita' ? '+' : '-';
+      return '<tr class="tbl-row" style="border-bottom:1px solid var(--border)">' +
+        '<td style="padding:12px 0;white-space:nowrap">' + formatarData(t.data) + '</td>' +
+        '<td style="padding:12px 0;font-weight:500">' + t.descricao + '</td>' +
+        '<td style="padding:12px 0;color:var(--muted)">' + t.categoria + '</td>' +
+        '<td style="padding:12px 0"><span class="status-pill status-' + t.tipo + '">' + (t.tipo === 'receita' ? 'Receita' : 'Despesa') + '</span></td>' +
+        '<td style="padding:12px 0;text-align:right;font-weight:600;color:' + valorClasse + ';font-variant-numeric:tabular-nums">' + valorPrefixo + ' ' + formatarMoeda(t.valor) + '</td>' +
+        '<td style="padding:12px 0;text-align:right"><button class="delete-btn" onclick="excluirTransacao(' + t.id + ')" title="Excluir">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>' +
+        '</button></td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  // ============ GRÁFICOS ============
+  function criarGraficos() {
+    var cores = ['#c9923c', '#4d8b7a', '#8b5a8b', '#5a7a9b', '#b87a4a', '#6a8a5a', '#9b6a6a', '#7a8a9a', '#a89a5a'];
+
+    // Gráfico de Pizza
+    var ctxPizza = document.getElementById('chartPizza').getContext('2d');
+    
+    var despesasPorCategoria = {};
+    transacoes.filter(function(t){ return t.tipo === 'despesa'; }).forEach(function(t){
+      if (!despesasPorCategoria[t.categoria]) despesasPorCategoria[t.categoria] = 0;
+      despesasPorCategoria[t.categoria] += parseFloat(t.valor);
+    });
+
+    var categorias = Object.keys(despesasPorCategoria);
+    var valores = Object.values(despesasPorCategoria);
+
+    if (chartPizza) chartPizza.destroy();
+    
+    chartPizza = new Chart(ctxPizza, {
+      type: 'doughnut',
+      data: {
+        labels: categorias.length > 0 ? categorias : ['Sem dados'],
+        datasets: [{
+          data: valores.length > 0 ? valores : [1],
+          backgroundColor: categorias.length > 0 ? cores.slice(0, categorias.length) : ['#3a3f52'],
+          borderColor: '#262a3a',
+          borderWidth: 3,
+          hoverOffset: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              color: '#8b9ab8',
+              font: { family: "'Source Sans 3', sans-serif", size: 12 },
+              padding: 15,
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
+          },
+          tooltip: {
+            backgroundColor: '#262a3a',
+            titleColor: '#e8ecf4',
+            bodyColor: '#e8ecf4',
+            borderColor: 'rgba(139,154,184,.16)',
+            borderWidth: 1,
+            padding: 12,
+            callbacks: {
+              label: function(context) {
+                var total = context.dataset.data.reduce(function(a, b){ return a + b; }, 0);
+                var percentual = ((context.raw / total) * 100).toFixed(1);
+                return context.label + ': ' + formatarMoeda(context.raw) + ' (' + percentual + '%)';
+              }
+            }
+          }
+        },
+        cutout: '60%'
+      }
+    });
+
+    // Gráfico de Barras
+    var ctxBarras = document.getElementById('chartBarras').getContext('2d');
+    
+    var meses = {};
+    transacoes.forEach(function(t){
+      var data = new Date(t.data + 'T00:00:00');
+      var chaveMes = data.getFullYear() + '-' + String(data.getMonth() + 1).padStart(2, '0');
+      if (!meses[chaveMes]) meses[chaveMes] = { receitas: 0, despesas: 0 };
+      if (t.tipo === 'receita') meses[chaveMes].receitas += parseFloat(t.valor);
+      else meses[chaveMes].despesas += parseFloat(t.valor);
+    });
+
+    var mesesOrdenados = Object.keys(meses).sort().slice(-6);
+    var nomesMeses = mesesOrdenados.map(function(m){
+      var partes = m.split('-');
+      var data = new Date(partes[0], partes[1] - 1, 1);
+      return data.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+    });
+    var receitasMes = mesesOrdenados.map(function(m){ return meses[m].receitas; });
+    var despesasMes = mesesOrdenados.map(function(m){ return meses[m].despesas; });
+
+    if (chartBarras) chartBarras.destroy();
+
+    chartBarras = new Chart(ctxBarras, {
+      type: 'bar',
+      data: {
+        labels: nomesMeses.length > 0 ? nomesMeses : ['Sem dados'],
+        datasets: [
+          {
+            label: 'Receitas',
+            data: receitasMes.length > 0 ? receitasMes : [0],
+            backgroundColor: 'rgba(77,139,122,.7)',
+            borderColor: '#4d8b7a',
+            borderWidth: 1,
+            borderRadius: 6
+          },
+          {
+            label: 'Despesas',
+            data: despesasMes.length > 0 ? despesasMes : [0],
+            backgroundColor: 'rgba(201,146,60,.7)',
+            borderColor: '#c9923c',
+            borderWidth: 1,
+            borderRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              color: '#8b9ab8',
+              font: { family: "'Source Sans 3', sans-serif", size: 12 },
+              padding: 20,
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
+          },
+          tooltip: {
+            backgroundColor: '#262a3a',
+            titleColor: '#e8ecf4',
+            bodyColor: '#e8ecf4',
+            borderColor: 'rgba(139,154,184,.16)',
+            borderWidth: 1,
+            padding: 12,
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': ' + formatarMoeda(context.raw);
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#8b9ab8' }
+          },
+          y: {
+            grid: { color: 'rgba(139,154,184,.08)' },
+            ticks: { 
+              color: '#8b9ab8',
+              callback: function(value) { return 'R$ ' + value.toLocaleString('pt-BR'); }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // ============ AÇÕES ============
+  function adicionarTransacao(e) {
+    e.preventDefault();
+    
+    var tipo = document.querySelector('input[name="tipo"]:checked').value;
+    var descricao = document.getElementById('descricao').value.trim();
+    var valor = parseFloat(document.getElementById('valor').value);
+    var categoria = document.getElementById('categoria').value;
+    var data = document.getElementById('data').value;
+
+    if (!descricao || !valor || !categoria || !data) return;
+
+    var transacao = {
+      id: Date.now(),
+      tipo: tipo,
+      descricao: descricao,
+      valor: valor,
+      categoria: categoria,
+      data: data
+    };
+
+    transacoes.push(transacao);
+    salvarTransacoes();
+    atualizarInterface();
+    
+    e.target.reset();
+    document.getElementById('data').valueAsDate = new Date();
+    document.getElementById('tipoReceita').checked = true;
+  }
+
+  function excluirTransacao(id) {
+    if (confirm('Tem certeza que deseja excluir esta transação?')) {
+      transacoes = transacoes.filter(function(t){ return t.id !== id; });
+      salvarTransacoes();
+      atualizarInterface();
+    }
+  }
+  window.excluirTransacao = excluirTransacao;
+
+  function limparTodosDados() {
+    if (confirm('Tem certeza que deseja excluir TODAS as suas transações? Esta ação não pode ser desfeita.')) {
+      transacoes = [];
+      salvarTransacoes();
+      atualizarInterface();
+    }
+  }
+
+  function filtrarTransacoes(tipo) {
+    filtroAtual = tipo;
+    document.querySelectorAll('.filter-btn').forEach(function(btn){
+      btn.classList.toggle('active', btn.dataset.filter === tipo);
+    });
+    renderizarTabela();
+  }
+
+  function atualizarInterface() {
+    calcularTotais();
+    renderizarTabela();
+    criarGraficos();
+    renderizarOrcamentos();
+    renderizarMetas();
+  }
+
+  // ============ EVENTOS ============
+  // Abas de autenticação
+  document.querySelectorAll('.auth-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      mudarTab(this.dataset.tab);
+    });
+  });
+
+  // Login
+  document.getElementById('loginForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var email = document.getElementById('loginEmail').value;
+    var senha = document.getElementById('loginSenha').value;
+    var resultado = login(email, senha);
+    
+    if (resultado.sucesso) {
+      usuarioLogado = resultado.usuario;
+      mostrarTelaSistema();
+    } else {
+      var erro = document.getElementById('loginError');
+      erro.textContent = resultado.mensagem;
+      erro.classList.add('show');
+    }
+  });
+
+  // Cadastro
+  document.getElementById('cadastroForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var nome = document.getElementById('cadastroNome').value;
+    var email = document.getElementById('cadastroEmail').value;
+    var senha = document.getElementById('cadastroSenha').value;
+    var senha2 = document.getElementById('cadastroSenha2').value;
+    var erroEl = document.getElementById('cadastroError');
+    
+    if (senha !== senha2) {
+      erroEl.textContent = 'As senhas não coincidem.';
+      erroEl.classList.add('show');
+      return;
+    }
+    
+    if (senha.length < 6) {
+      erroEl.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+      erroEl.classList.add('show');
+      return;
+    }
+    
+    var resultado = cadastrar(nome, email, senha);
+    
+    if (resultado.sucesso) {
+      usuarioLogado = resultado.usuario;
+      mostrarTelaSistema();
+    } else {
+      erroEl.textContent = resultado.mensagem;
+      erroEl.classList.add('show');
+    }
+  });
+
+  // Formulário de transação
+  document.getElementById('formTransacao').addEventListener('submit', adicionarTransacao);
+  document.getElementById('formOrcamento').addEventListener('submit', adicionarOrcamento);
+  document.getElementById('formMeta').addEventListener('submit', adicionarMeta);
+  document.getElementById('limparDados').addEventListener('click', limparTodosDados);
+  
+  document.querySelectorAll('.filter-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      filtrarTransacoes(this.dataset.filter);
+    });
+  });
+
+
+  // ============ NOVAS FUNCIONALIDADES ============
+  
+  var ORCAMENTO_PREFIX = 'cf_orcamento_';
+  var METAS_PREFIX = 'cf_metas_';
+  var THEME_KEY = 'cf_tema';
+  
+  function alternarTema() {
+    var body = document.body;
+    body.classList.toggle('tema-claro');
+    var icon = document.getElementById('themeIcon');
+    if (body.classList.contains('tema-claro')) {
+      icon.textContent = '🌙';
+      localStorage.setItem(THEME_KEY, 'claro');
+    } else {
+      icon.textContent = '☀️';
+      localStorage.setItem(THEME_KEY, 'escuro');
+    }
+  }
+  
+  function carregarTema() {
+    var tema = localStorage.getItem(THEME_KEY);
+    var body = document.body;
+    var icon = document.getElementById('themeIcon');
+    if (tema === 'claro') {
+      body.classList.add('tema-claro');
+      if (icon) icon.textContent = '🌙';
+    } else {
+      if (icon) icon.textContent = '☀️';
+    }
+  }
+  
+  function getOrcamentoKey() {
+    return ORCAMENTO_PREFIX + usuarioLogado.id;
+  }
+  
+  function carregarOrcamentos() {
+    var dados = localStorage.getItem(getOrcamentoKey());
+    return dados ? JSON.parse(dados) : [];
+  }
+  
+  function salvarOrcamentos(orcamentos) {
+    localStorage.setItem(getOrcamentoKey(), JSON.stringify(orcamentos));
+  }
+  
+  function adicionarOrcamento(e) {
+    e.preventDefault();
+    var categoria = document.getElementById('orcamentoCategoria').value;
+    var limite = parseFloat(document.getElementById('orcamentoLimite').value);
+    var orcamentos = carregarOrcamentos();
+    var existente = orcamentos.findIndex(function(o) { return o.categoria === categoria; });
+    if (existente >= 0) {
+      orcamentos[existente].limite = limite;
+    } else {
+      orcamentos.push({ id: Date.now(), categoria: categoria, limite: limite });
+    }
+    salvarOrcamentos(orcamentos);
+    renderizarOrcamentos();
+    e.target.reset();
+  }
+  
+  function excluirOrcamento(id) {
+    if (confirm('Deseja realmente excluir este orçamento?')) {
+      var orcamentos = carregarOrcamentos().filter(function(o) { return o.id !== id; });
+      salvarOrcamentos(orcamentos);
+      renderizarOrcamentos();
+    }
+  }
+  
+  function calcularGastosPorCategoria() {
+    var gastos = {};
+    transacoes.forEach(function(t) {
+      if (t.tipo === 'despesa') {
+        if (!gastos[t.categoria]) gastos[t.categoria] = 0;
+        gastos[t.categoria] += t.valor;
+      }
+    });
+    return gastos;
+  }
+  
+  function renderizarOrcamentos() {
+    var container = document.getElementById('listaOrcamento');
+    if (!container) return;
+    var orcamentos = carregarOrcamentos();
+    var gastos = calcularGastosPorCategoria();
+    if (orcamentos.length === 0) {
+      container.innerHTML = '<div class="empty-state">Nenhum orçamento cadastrado. Defina limites de gastos por categoria!</div>';
+      return;
+    }
+    var html = '';
+    orcamentos.forEach(function(o) {
+      var gasto = gastos[o.categoria] || 0;
+      var percentual = o.limite > 0 ? (gasto / o.limite) * 100 : 0;
+      var status = percentual >= 100 ? 'danger' : (percentual >= 80 ? 'warn' : 'ok');
+      var statusTexto = percentual >= 100 ? '⚠️ ESTOURADO!' : (percentual >= 80 ? '⚡ Atenção!' : '✓ No controle');
+      html += '<div class="orcamento-item">' +
+        '<div class="orcamento-header">' +
+          '<span class="orcamento-nome">' + o.categoria + '</span>' +
+          '<button class="excluir-btn" onclick="excluirOrcamento(' + o.id + ')">Excluir</button>' +
+        '</div>' +
+        '<div class="progress-bar"><div class="progress-fill ' + status + '" style="width:' + Math.min(percentual, 100) + '%"></div></div>' +
+        '<div class="orcamento-valores">' +
+          'Gasto: R$ ' + gasto.toFixed(2).replace('.',',') + ' / Limite: R$ ' + o.limite.toFixed(2).replace('.',',') +
+          ' (' + percentual.toFixed(1) + '%) — ' + statusTexto +
+        '</div>' +
+      '</div>';
+    });
+    container.innerHTML = html;
+  }
+  
+  function getMetasKey() {
+    return METAS_PREFIX + usuarioLogado.id;
+  }
+  
+  function carregarMetas() {
+    var dados = localStorage.getItem(getMetasKey());
+    return dados ? JSON.parse(dados) : [];
+  }
+  
+  function salvarMetas(metas) {
+    localStorage.setItem(getMetasKey(), JSON.stringify(metas));
+  }
+  
+  function adicionarMeta(e) {
+    e.preventDefault();
+    var nome = document.getElementById('metaNome').value;
+    var alvo = parseFloat(document.getElementById('metaAlvo').value);
+    var atual = parseFloat(document.getElementById('metaAtual').value) || 0;
+    var metas = carregarMetas();
+    metas.push({ id: Date.now(), nome: nome, alvo: alvo, atual: atual });
+    salvarMetas(metas);
+    renderizarMetas();
+    e.target.reset();
+    document.getElementById('metaAtual').value = '0';
+  }
+  
+  function excluirMeta(id) {
+    if (confirm('Deseja realmente excluir esta meta?')) {
+      var metas = carregarMetas().filter(function(m) { return m.id !== id; });
+      salvarMetas(metas);
+      renderizarMetas();
+    }
+  }
+  
+  function adicionarValorMeta(id, valor) {
+    if (!valor || valor <= 0) return;
+    var metas = carregarMetas();
+    var meta = metas.find(function(m) { return m.id === id; });
+    if (meta) {
+      meta.atual = Math.min(meta.atual + valor, meta.alvo);
+      salvarMetas(metas);
+      renderizarMetas();
+    }
+  }
+  
+  function renderizarMetas() {
+    var container = document.getElementById('listaMetas');
+    if (!container) return;
+    var metas = carregarMetas();
+    if (metas.length === 0) {
+      container.innerHTML = '<div class="empty-state">Nenhuma meta cadastrada. Crie metas para alcançar seus sonhos!</div>';
+      return;
+    }
+    var html = '';
+    metas.forEach(function(m) {
+      var percentual = m.alvo > 0 ? (m.atual / m.alvo) * 100 : 0;
+      var concluido = percentual >= 100;
+      var status = concluido ? 'ok' : (percentual >= 50 ? 'warn' : 'ok');
+      var emoji = concluido ? '🎉' : '💪';
+      html += '<div class="meta-item">' +
+        '<div class="meta-header">' +
+          '<span class="meta-nome">' + emoji + ' ' + m.nome + '</span>' +
+          '<button class="excluir-btn" onclick="excluirMeta(' + m.id + ')">Excluir</button>' +
+        '</div>' +
+        '<div class="progress-bar"><div class="progress-fill ' + status + '" style="width:' + percentual + '%"></div></div>' +
+        '<div class="meta-valores">' +
+          'R$ ' + m.atual.toFixed(2).replace('.',',') + ' de R$ ' + m.alvo.toFixed(2).replace('.',',') +
+          ' (' + percentual.toFixed(1) + '%)' +
+          (concluido ? ' — META CONCLUÍDA! 🎊' : '') +
+        '</div>' +
+        '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;">' +
+          '<input type="number" id="addValor_' + m.id + '" placeholder="Adicionar valor (R$)" step="0.01" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;">' +
+          '<button onclick="adicionarValorMeta(' + m.id + ', parseFloat(document.getElementById(\'addValor_' + m.id + '\').value) || 0)" style="padding:8px 16px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;cursor:pointer;font-size:13px;font-weight:500;">+ Adicionar</button>' +
+        '</div>' +
+      '</div>';
+    });
+    container.innerHTML = html;
+  }
+  
+  // Atualizar orçamentos quando transações mudarem
+  var _salvarOriginal = salvarTransacoes;
+  salvarTransacoes = function() {
+    _salvarOriginal();
+    if (usuarioLogado) {
+      renderizarOrcamentos();
+    }
+  };
+  
+  window.alternarTema = alternarTema;
+  window.excluirOrcamento = excluirOrcamento;
+  window.excluirMeta = excluirMeta;
+  window.adicionarValorMeta = adicionarValorMeta;
+
+
+  // ============ INICIALIZAÇÃO ============
+  carregarTema();
+
+  // Verificar se já tem sessão ativa
+  var sessao = getSessao();
+  if (sessao) {
+    usuarioLogado = sessao;
+    mostrarTelaSistema();
+  } else {
+    mostrarTelaAuth();
+  }
+
+})();
+</script>
+
+</body>
+</html>
